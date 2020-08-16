@@ -1,0 +1,14 @@
+name: mercure_client
+description: Provide a quick way to publish and consume messages on Mercure
+version: 0.0.1
+homepage: https://github.com/herveGuigoz/mercure_client
+
+environment:
+  sdk: ">=2.8.0 <3.0.0"
+
+dependencies:
+  meta: ^1.2.2
+  dio: ^3.0.10
+
+dev_dependencies:
+  test: ^1.15.3
