@@ -2,7 +2,7 @@ Provide a quick way to publish and consume messages on [Mercure](https://github.
 
 ## The features
 
-This project use [Dio](https://pub.dev/packages/dio) as HTTP client for making get request and listen fo server side event.
+This project use [Dio](https://pub.dev/packages/dio) as HTTP client for making get request and listen for server side event.
 
 ### Consuming messages
 
