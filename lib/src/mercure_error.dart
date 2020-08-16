@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-/// {@template mercure_client.MercureClient}
+/// {@template mercure_client.MercureError}
 /// Exception when request failed or for malformed event.
 /// {@endtemplate}
 class MercureError implements Exception {
