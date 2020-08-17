@@ -16,12 +16,13 @@ class MercureEvent {
 
     for (final line in lines) {
       final matches = _pattern.firstMatch(line);
-      final name = matches.namedGroup('name');
-      final value = matches.namedGroup('value');
 
       if (matches == null) {
         throw MercureError(error: 'Invalid line $line');
       }
+
+      final name = matches.namedGroup('name');
+      final value = matches.namedGroup('value');
 
       if (name.isEmpty) {
         continue;
