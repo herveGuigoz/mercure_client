@@ -87,6 +87,7 @@ abstract class MercureClient {
         response: response,
         error: 'Server forbid connection retry by responding 204 status code.',
       ));
+      return;
     }
 
     utf8.decoder.bind(response.data.stream).listen((raw) {
