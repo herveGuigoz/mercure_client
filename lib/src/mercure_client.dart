@@ -79,6 +79,7 @@ abstract class MercureClient {
       );
     } on DioError catch (e) {
       _controller.addError(MercureError(response: e.response, error: e.error));
+      return;
     }
 
     if (response.statusCode == 204) {
