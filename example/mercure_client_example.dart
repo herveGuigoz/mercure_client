@@ -6,6 +6,9 @@ void main() {
   final mercure = Mercure(
     'http://example.com/.well-known/mercure', // your mercure hub url
     '/books/{id}', // your mercure topic
+    token: 'your_jwt_token', // Bearer authorization
+    lastEventId: 'last_event_id', // in case your stored last recieved event
+    showLogs: true, // Default to false
   );
 
   mercure.subscribe(events.add);
