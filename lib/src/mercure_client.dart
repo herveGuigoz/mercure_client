@@ -47,6 +47,9 @@ abstract class MercureClient {
   /// Stream of [MercureEvent]
   final _controller = StreamController<MercureEvent>.broadcast();
 
+  /// use to cancel a request
+  final _cancelToken = CancelToken();
+
   /// Subscribe to Server-Sent-Events
   Future<void> _connect() async {
     final headers = <String, Object>{
@@ -71,7 +74,8 @@ abstract class MercureClient {
         options: Options(
           responseType: ResponseType.stream,
           headers: headers,
-        ), // set responseType to `stream`
+        ),
+        cancelToken: _cancelToken, // set responseType to `stream`
       );
     } on DioError catch (e) {
       _controller.addError(MercureError(response: e.response, error: e.error));
@@ -125,6 +129,7 @@ abstract class MercureClient {
   /// Close [StreamController]
   @mustCallSuper
   Future<void> close() async {
+    _cancelToken.cancel();
     await _controller.close();
   }
 }
