@@ -11,7 +11,7 @@ class MercureEvent {
     String eventType = 'message', data = '', id;
     int retry;
 
-    final _pattern = RegExp('(?<name>[^:]*):?( ?(?<value>.*))?');
+    final _pattern = RegExp(r'^(?<name>[^:]*)(?::)?(?: )?(?<value>.*)?$');
     final lines = const LineSplitter().convert(raw);
 
     for (final line in lines) {
@@ -33,7 +33,7 @@ class MercureEvent {
           eventType = value;
           break;
         case 'data':
-          data = data.isEmpty ? value : '$data\n$value';
+          data = '$data$value\n';
           break;
         case 'id':
           id = value;
