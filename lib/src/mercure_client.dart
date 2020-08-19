@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'mercure_error.dart';
 import 'mercure_event.dart';
 
-const String _kEndOfMessage = '/\r\n\r\n|\n\n|\r\r/';
+const String _kEndOfMessage = '\r\n\r\n|\n\n|\r\r';
 
 /// {@template mercure_client.MercureClient}
 /// A class that allows subscribing to a Mercure hub to get updates from
@@ -90,15 +90,20 @@ abstract class MercureClient {
       return;
     }
 
+    var message = '';
+
     utf8.decoder.bind(response.data.stream).listen((raw) {
       if (raw.isEmpty) {
         return;
       }
 
+      message = '$message$raw';
+
       if (RegExp(_kEndOfMessage).hasMatch(raw)) {
         try {
-          final event = MercureEvent.parse(raw);
+          final event = MercureEvent.parse(message);
           _lastId = event.id;
+          message = '';
           _controller.add(event);
         } on MercureError catch (e) {
           _controller.addError(e);

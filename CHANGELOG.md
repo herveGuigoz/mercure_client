@@ -1,3 +1,7 @@
+## [0.0.5]
+
+* Update regex pattern
+
 ## [0.0.4]
 
 * Fix errors handling
