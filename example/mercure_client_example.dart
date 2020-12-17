@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:mercure_client/mercure_client.dart';
 
-void main() {
+Future<void> main() async {
   final books = <Book>[];
 
   final mercure = Mercure(
@@ -14,7 +14,7 @@ void main() {
   );
 
   /// Subscribe to mercure hub
-  mercure.subscribe((event) {
+  await mercure.subscribe((event) {
     books.add(Book.fromJson(json.decode(event.data) as Map<String, Object>));
   });
 

@@ -9,13 +9,13 @@ This project use [Dio](https://pub.dev/packages/dio) as HTTP client for making g
 ```dart
 import 'package:mercure_client/mercure_client.dart';
 
-main() {
+main() async {
   final Mercure mercure = Mercure(
     'http://example.com/.well-known/mercure', // your mercure hub url
     '/books/{id}', // your mercure topic
   );
 
-  mercure.subscribe((event) {
+  await mercure.subscribe((event) {
     print(event.data);
   });
 }

@@ -1,142 +1,68 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 
-import 'mercure_error.dart';
 import 'mercure_event.dart';
-
-const String _kEndOfMessage = '\r\n\r\n|\n\n|\r\r';
+import 'mercure_request.dart';
 
 /// {@template mercure_client.MercureClient}
 /// A class that allows subscribing to a Mercure hub to get updates from
 /// by using one or several query parameters named topic.
 /// {@endtemplate}
-abstract class MercureClient {
+abstract class MercureClient extends MercureRequest {
   /// {@macro mercure_client.MercureClient}
   MercureClient(
-    this._url,
-    this._topic,
-    this._dio, {
+    String url,
+    String topic,
+    Dio dio, {
     String token,
-    String lastId,
-  })  : _token = token,
-        _lastId = lastId,
-        assert(_url != null, 'mercure hub must be provided'),
-        assert(_topic != null, 'topic must be provided'),
-        assert(_dio != null, 'http client must be provided');
-
-  // http client
-  final Dio _dio;
-
-  /// URL exposed by a hub to receive updates from one or many topics.
-  final String _url;
-
-  /// An expression matching one or several topics
-  // todo(_topics) list of topics.
-  final String _topic;
-
-  /// Authorization HTTP header
-  final String _token;
-
-  /// The identifier of the last event dispatched by the publisher
-  /// at the time of the generation of this resource.
-  String _lastId;
+    String lastEventId,
+  })  : assert(url != null, 'mercure hub must be provided'),
+        assert(topic != null, 'topic must be provided'),
+        assert(dio != null, 'http client must be provided'),
+        super(
+          dio: dio,
+          url: url,
+          topic: topic,
+          token: token,
+          lastEventId: lastEventId,
+        );
 
   /// Stream of [MercureEvent]
-  final _controller = StreamController<MercureEvent>.broadcast();
-
-  /// use to cancel a request
-  final _cancelToken = CancelToken();
-
-  /// Subscribe to Server-Sent-Events
-  Future<void> _connect() async {
-    final headers = <String, Object>{
-      'Accept': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-    };
-
-    if (_token != null) {
-      headers['Authorization'] = 'Bearer $_token';
-    }
-
-    if (_lastId != null) {
-      headers['Last-Event-ID'] = _lastId;
-    }
-
-    Response<ResponseBody> response;
-
-    try {
-      response = await _dio.get<ResponseBody>(
-        _url,
-        queryParameters: <String, String>{'topic': _topic},
-        options: Options(
-          responseType: ResponseType.stream,
-          headers: headers,
-        ),
-        cancelToken: _cancelToken, // set responseType to `stream`
-      );
-    } on DioError catch (e) {
-      _controller.addError(MercureError(response: e.response, error: e.error));
-      return;
-    }
-
-    if (response.statusCode == 204) {
-      _controller.addError(MercureError(
-        response: response,
-        error: 'Server forbid connection retry by responding 204 status code.',
-      ));
-      return;
-    }
-
-    var message = '';
-
-    utf8.decoder.bind(response.data.stream).listen((raw) {
-      if (raw.isEmpty) {
-        return;
-      }
-
-      message = '$message$raw';
-
-      if (RegExp(_kEndOfMessage).hasMatch(raw)) {
-        try {
-          final event = MercureEvent.parse(message);
-          _lastId = event.id;
-          message = '';
-          _controller.add(event);
-        } on MercureError catch (e) {
-          _controller.addError(e);
-        }
-      }
-    }).onDone(() async {
-      if (!_controller.isClosed && _controller.hasListener) {
-        await _connect();
-      }
-    });
-  }
+  StreamSubscription<MercureEvent> _subscription;
 
   /// Returns a [StreamSubscription] which handles events.
-  StreamSubscription<MercureEvent> subscribe(
+  Future<StreamSubscription<MercureEvent>> subscribe(
     void Function(MercureEvent) onData, {
     Function onError,
-    void Function() onDone,
     bool cancelOnError,
-  }) {
-    _connect();
+  }) async {
+    await _subscription?.cancel();
 
-    return _controller.stream.listen(
-      onData,
-      onError: onError,
-      onDone: onDone,
-      cancelOnError: cancelOnError,
-    );
+    try {
+      final response = await connect();
+
+      _subscription = response.listen(
+        onData,
+        onDone: () async => subscribe(
+          onData,
+          onError: onError,
+          cancelOnError: cancelOnError,
+        ),
+        onError: onError,
+        cancelOnError: cancelOnError ?? true,
+      );
+    } catch (err) {
+      onError(err);
+    }
+
+    return _subscription;
   }
 
   /// Close [StreamController]
   @mustCallSuper
   Future<void> close() async {
-    _cancelToken.cancel();
-    await _controller.close();
+    await _subscription?.cancel();
   }
 }

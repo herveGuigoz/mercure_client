@@ -14,7 +14,7 @@ class Mercure extends MercureClient {
     String token,
     String lastEventId,
     bool showLogs = false,
-  }) : super(url, topic, _client, token: token, lastId: lastEventId) {
+  }) : super(url, topic, _client, token: token, lastEventId: lastEventId) {
     if (showLogs) {
       _client.interceptors.add(LogInterceptor());
     }
