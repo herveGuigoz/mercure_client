@@ -1,3 +1,8 @@
+## [0.0.6]
+
+* Refactor request and Transformer
+* Make subcribe asynchronous
+
 ## [0.0.5]
 
 * Update regex pattern
