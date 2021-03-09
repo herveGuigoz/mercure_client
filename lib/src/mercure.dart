@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 
 import 'mercure_client.dart';
 
@@ -11,8 +10,8 @@ class Mercure extends MercureClient {
   Mercure(
     String url,
     String topic, {
-    String token,
-    String lastEventId,
+    String? token,
+    String? lastEventId,
     bool showLogs = false,
   }) : super(url, topic, _client, token: token, lastEventId: lastEventId) {
     if (showLogs) {
@@ -25,9 +24,9 @@ class Mercure extends MercureClient {
 
   /// Publish data in mercure hub for given topic
   static Future<Response<T>> publish<T>({
-    @required String url,
-    @required String topic,
-    @required String data,
+    required String url,
+    required String topic,
+    required String data,
   }) async {
     final response = await _client.post<T>(url, data: {
       'topic': topic,

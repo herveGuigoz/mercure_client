@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 
 import 'mercure_event.dart';
 import 'mercure_request.dart';
@@ -16,12 +15,9 @@ abstract class MercureClient extends MercureRequest {
     String url,
     String topic,
     Dio dio, {
-    String token,
-    String lastEventId,
-  })  : assert(url != null, 'mercure hub must be provided'),
-        assert(topic != null, 'topic must be provided'),
-        assert(dio != null, 'http client must be provided'),
-        super(
+    String? token,
+    String? lastEventId,
+  }) : super(
           dio: dio,
           url: url,
           topic: topic,
@@ -30,13 +26,13 @@ abstract class MercureClient extends MercureRequest {
         );
 
   /// Stream of [MercureEvent]
-  StreamSubscription<MercureEvent> _subscription;
+  StreamSubscription<MercureEvent>? _subscription;
 
   /// Returns a [StreamSubscription] which handles events.
   Future<StreamSubscription<MercureEvent>> subscribe(
     void Function(MercureEvent) onData, {
-    Function onError,
-    bool cancelOnError,
+    Function? onError,
+    bool? cancelOnError,
   }) async {
     await _subscription?.cancel();
 
@@ -54,14 +50,15 @@ abstract class MercureClient extends MercureRequest {
         cancelOnError: cancelOnError ?? true,
       );
     } catch (err) {
-      onError(err);
+      if (onError != null) {
+        onError(err);
+      }
     }
 
-    return _subscription;
+    return _subscription!;
   }
 
   /// Close [StreamController]
-  @mustCallSuper
   Future<void> close() async {
     await _subscription?.cancel();
   }
