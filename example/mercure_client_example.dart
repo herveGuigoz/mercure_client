@@ -15,7 +15,7 @@ Future<void> main() async {
 
   /// Subscribe to mercure hub
   await mercure.subscribe((event) {
-    books.add(Book.fromJson(json.decode(event.data) as Map<String, Object>));
+    books.add(Book.fromJson(json.decode(event.data) as Map<String, dynamic>));
   });
 
   /// Publish message to the hub
@@ -30,10 +30,10 @@ Future<void> main() async {
 }
 
 class Book {
-  Book(this.id, this.title);
+  Book._(this.id, this.title);
 
-  factory Book.fromJson(Map<String, Object> json) {
-    return Book(
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book._(
       json['id'] as int,
       json['title'] as String,
     );
@@ -42,5 +42,5 @@ class Book {
   final int id;
   final String title;
 
-  Map<String, Object> toJson() => <String, Object>{'id': id, 'title': title};
+  Map<String, dynamic> toJson() => <String, dynamic>{'id': id, 'title': title};
 }

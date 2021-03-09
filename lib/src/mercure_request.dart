@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 
 import 'mercure_error.dart';
 import 'mercure_event.dart';
@@ -13,9 +12,9 @@ import 'mercure_event.dart';
 abstract class MercureRequest {
   /// {@macro mercure_client.MercureRequest}
   MercureRequest({
-    @required this.dio,
-    @required this.url,
-    @required this.topic,
+    required this.dio,
+    required this.url,
+    required this.topic,
     this.token,
     this.lastEventId,
   });
@@ -31,19 +30,19 @@ abstract class MercureRequest {
   final String topic;
 
   /// Authorization HTTP header
-  final String token;
+  final String? token;
 
   /// The identifier of the last event dispatched by the publisher
   /// at the time of the generation of this resource.
-  String lastEventId;
+  String? lastEventId;
 
-  /// Util to parse Uint8List to MercureEvent
+  /// Util to parse Unit8List to MercureEvent
   final buffer = StringBuffer();
 
   /// Regex to find end of MercureEvent
   static const String _kEndOfMessage = '\r\n\r\n|\n\n|\r\r';
 
-  /// Make GET request to Mercure Hub and transform the Uint8List stream to
+  /// Make GET request to Mercure Hub and transform the Unit8List stream to
   /// Mercure Event stream
   Future<Stream<MercureEvent>> connect() async {
     final headers = <String, Object>{
@@ -56,7 +55,7 @@ abstract class MercureRequest {
     }
 
     if (lastEventId != null) {
-      headers['Last-Event-ID'] = lastEventId;
+      headers['Last-Event-ID'] = lastEventId!;
     }
 
     Response<ResponseBody> response;
@@ -81,7 +80,7 @@ abstract class MercureRequest {
       );
     }
 
-    final stream = response.data.stream.transform<MercureEvent>(
+    final stream = response.data!.stream.transform<MercureEvent>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           final raw = utf8.decode(data, allowMalformed: true);
