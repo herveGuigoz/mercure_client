@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 
 import 'mercure_event.dart';
 import 'mercure_request.dart';
@@ -60,7 +59,6 @@ abstract class MercureClient extends MercureRequest {
   }
 
   /// Close [StreamController]
-  @mustCallSuper
   Future<void> close() async {
     await _subscription?.cancel();
   }
