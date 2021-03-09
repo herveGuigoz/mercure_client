@@ -1,4 +1,4 @@
-## [0.0.7-beta]
+## [1.0.0-beta]
 * Update to null safety
 
 ## [0.0.6]
