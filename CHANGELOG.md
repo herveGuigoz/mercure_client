@@ -1,4 +1,7 @@
 ## [0.0.6]
+* Update to null safety
+
+## [0.0.6]
 
 * Refactor request and Transformer
 * Make subcribe asynchronous

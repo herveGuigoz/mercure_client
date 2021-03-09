@@ -8,8 +8,8 @@ import 'mercure_error.dart';
 class MercureEvent {
   /// {@macro mercure_client.MercureEvent}
   factory MercureEvent.parse(String raw) {
-    String eventType = 'message', data = '', id;
-    int retry;
+    late String eventType = 'message', data = '', id;
+    int? retry;
 
     final _pattern = RegExp(r'^(?<name>[^:]*)(?::)?(?: )?(?<value>.*)?$');
     final lines = const LineSplitter().convert(raw);
@@ -22,9 +22,9 @@ class MercureEvent {
       }
 
       final name = matches.namedGroup('name');
-      final value = matches.namedGroup('value');
+      final value = matches.namedGroup('value') ?? '';
 
-      if (name.isEmpty) {
+      if (name == null || name.isEmpty) {
         continue;
       }
 
@@ -60,7 +60,7 @@ class MercureEvent {
   final String _id;
   final String _data;
   final String _eventType;
-  final int _retry;
+  final int? _retry;
 
   /// The SSE's id property
   String get id => _id;
@@ -72,5 +72,5 @@ class MercureEvent {
   String get eventType => _eventType;
 
   /// The SSE's retry property (the reconnection time)
-  int get retry => _retry;
+  int? get retry => _retry;
 }

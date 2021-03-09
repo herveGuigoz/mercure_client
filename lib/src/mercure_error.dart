@@ -12,7 +12,7 @@ class MercureError implements Exception {
 
   /// Response info, it may be `null` if the request can't reach to
   /// the http server, for example, occurring a dns error, network is not available.
-  Response response;
+  Response? response;
 
   /// The error/exception object
   dynamic error;
