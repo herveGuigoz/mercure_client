@@ -8,7 +8,9 @@ import 'mercure_error.dart';
 class MercureEvent {
   /// {@macro mercure_client.MercureEvent}
   factory MercureEvent.parse(String raw) {
-    late String eventType = 'message', data = '', id;
+    String? eventType;
+    String? data;
+    String? id;
     int? retry;
 
     final _pattern = RegExp(r'^(?<name>[^:]*)(?::)?(?: )?(?<value>.*)?$');
@@ -18,7 +20,7 @@ class MercureEvent {
       final matches = _pattern.firstMatch(line);
 
       if (matches == null) {
-        throw MercureError(error: 'Invalid line $line');
+        throw MercureEventException(line);
       }
 
       final name = matches.namedGroup('name');
@@ -51,16 +53,19 @@ class MercureEvent {
   }
 
   MercureEvent._(
-    this._id,
-    this._data,
-    this._eventType,
-    this._retry,
-  );
+    String? id,
+    String? data,
+    String? eventType,
+    int? retry,
+  )   : _id = id ?? '',
+        _data = data ?? '',
+        _eventType = eventType ?? 'message',
+        _retry = retry ?? 0;
 
   final String _id;
   final String _data;
   final String _eventType;
-  final int? _retry;
+  final int _retry;
 
   /// The SSE's id property
   String get id => _id;
