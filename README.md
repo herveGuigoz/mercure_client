@@ -11,24 +11,12 @@ import 'package:mercure_client/mercure_client.dart';
 
 main() async {
   final Mercure mercure = Mercure(
-    'http://example.com/.well-known/mercure', // your mercure hub url
-    '/books/{id}', // your mercure topic
+    url: 'http://example.com/.well-known/mercure', // your mercure hub url
+    topics: ['/books/{id}'], // your mercure topic
   );
 
-  await mercure.subscribe((event) {
+  await mercure.listen((event) {
     print(event.data);
   });
 }
-```
-
-### Publishing Messages
-
-```dart
-Mercure.publish(
-  url: 'http://example.com/.well-known/mercure',
-  topic: '/books',
-  data: 'some data',
-).then((response) {
-  print(response.statusCode);
-});
 ```
