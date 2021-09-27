@@ -1,3 +1,8 @@
+## [1.0.0]
+* Remove Dio dependencies
+* Allow multiple topics subscriptions
+* No more publish action
+
 ## [1.0.0-beta]
 * Update to null safety
 
