@@ -1,8 +1,7 @@
-Provide a quick way to publish and consume messages on [Mercure](https://github.com/dunglas/mercure).
 
 ## The features
 
-This project use [Dio](https://pub.dev/packages/dio) as HTTP client for making get request and listen for server side event.
+Provide a quick way to publish and consume messages on [Mercure](https://github.com/dunglas/mercure).
 
 ### Consuming messages
 
