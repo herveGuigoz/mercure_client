@@ -1,7 +1,10 @@
 ## [1.0.0]
+* Add auto retry feature
+* Use http package
 * Remove Dio dependencies
 * Allow multiple topics subscriptions
 * No more publish action
+* Mercure expose a stream
 
 ## [1.0.0-beta]
 * Update to null safety
