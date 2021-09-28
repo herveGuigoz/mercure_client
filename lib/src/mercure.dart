@@ -8,7 +8,7 @@ import 'mercure_event.dart';
 /// {@template mercure_client.mercure}
 /// A class that allows subscibe and publish to Mercure hub.
 /// {@endtemplate}
-class Mercure extends RetryStream<MercureEvent> {
+class Mercure extends _RetryStream<MercureEvent> {
   /// {@macro mercure_client.mercure}
   Mercure({
     required this.url,
@@ -54,50 +54,57 @@ class Mercure extends RetryStream<MercureEvent> {
       throw ContentTypeException(mime!, request.uri.toString());
     }
 
-    yield* response.transform<MercureEvent>(
-      StreamTransformer.fromHandlers(
-        handleData: (data, sink) {
-          final raw = utf8.decode(data, allowMalformed: true);
-
-          if (raw.isEmpty) {
-            return;
-          }
-
-          _buffer.write(raw);
-
-          if (RegExp(_kEndOfMessage).hasMatch(raw)) {
-            final event = MercureEvent.parse(_buffer.toString());
-            lastEventId = event.id;
-            _buffer.clear();
-            sink.add(event);
-          }
-        },
-      ),
-    );
+    yield* response.transform<MercureEvent>(_streamTransformer());
   }
 
   Future<HttpClientRequest> _createRequest() async {
+    // Create URI
     final uri = Uri.parse(url).replace(
       queryParameters: <String, String>{
         for (final topic in topics) 'topic': topic
       },
     );
+
     // Create a HTTP request
     final httpClient = HttpClient();
     final httpRequest = await httpClient.getUrl(uri);
+
+    // Add headers
     httpRequest.headers.set('Accept', 'text/event-stream');
     httpRequest.headers.set('Cache-Control', 'no-cache');
+    if (token != null) {
+      httpRequest.headers.set('Authorization', 'Bearer $token');
+    }
     if (lastEventId != null) {
       httpRequest.headers.set('Last-Event-ID', lastEventId!);
     }
 
     return httpRequest;
   }
+
+  StreamTransformer<List<int>, MercureEvent> _streamTransformer() {
+    return StreamTransformer.fromHandlers(handleData: (data, sink) {
+      final raw = utf8.decode(data, allowMalformed: true);
+
+      if (raw.isEmpty) {
+        return;
+      }
+
+      _buffer.write(raw);
+
+      if (RegExp(_kEndOfMessage).hasMatch(raw)) {
+        final event = MercureEvent(_buffer.toString());
+        lastEventId = event.id;
+        _buffer.clear();
+        sink.add(event);
+      }
+    });
+  }
 }
 
 /// Creates a [Stream] that will recreate and re-listen to the source
 /// [Stream].
-abstract class RetryStream<T> extends Stream<T> {
+abstract class _RetryStream<T> extends Stream<T> {
   late final StreamController<T> _controller = StreamController<T>(
     sync: true,
     onListen: _retry,

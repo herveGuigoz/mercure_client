@@ -7,11 +7,8 @@ import 'mercure_error.dart';
 /// {@endtemplate}
 class MercureEvent {
   /// {@macro mercure_client.MercureEvent}
-  factory MercureEvent.parse(String raw) {
-    String? eventType;
-    String? data;
-    String? id;
-    int? retry;
+  MercureEvent(String raw) {
+    var _id = '', _data = '', _type = 'message', _retry = 0;
 
     final _pattern = RegExp(r'^(?<name>[^:]*)(?::)?(?: )?(?<value>.*)?$');
     final lines = const LineSplitter().convert(raw);
@@ -32,16 +29,16 @@ class MercureEvent {
 
       switch (name) {
         case 'event':
-          eventType = value;
+          _type = value;
           break;
         case 'data':
-          data = '$data$value\n';
+          _data = '$_data$value\n';
           break;
         case 'id':
-          id = value;
+          _id = value;
           break;
         case 'retry':
-          retry = int.parse(value);
+          _retry = int.parse(value);
           break;
         default:
           // The field is ignored.
@@ -49,33 +46,26 @@ class MercureEvent {
       }
     }
 
-    return MercureEvent._(id, data, eventType, retry);
+    id = _id;
+    data = _data;
+    type = _type;
+    retry = _retry;
   }
 
-  MercureEvent._(
-    String? id,
-    String? data,
-    String? eventType,
-    int? retry,
-  )   : _id = id ?? '',
-        _data = data ?? '',
-        _eventType = eventType ?? 'message',
-        _retry = retry ?? 0;
-
-  final String _id;
-  final String _data;
-  final String _eventType;
-  final int _retry;
-
   /// The SSE's id property
-  String get id => _id;
+  late final String id;
 
   /// The SSE's event content
-  String get data => _data;
+  late final String data;
 
   /// The SSE's event property (a specific event type)
-  String get eventType => _eventType;
+  late final String type;
 
   /// The SSE's retry property (the reconnection time)
-  int? get retry => _retry;
+  late final int retry;
+
+  @override
+  String toString() {
+    return 'MercureEvent(id: $id, data: $data, type: $type, retry: $retry)';
+  }
 }
