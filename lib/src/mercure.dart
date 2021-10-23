@@ -157,8 +157,8 @@ class MercureRequest extends http.Request {
 
   /// Format request uri
   static Uri build(String hub, List<String> topics) {
-    final uri = Uri.parse(hub).replace(queryParameters: <String, String>{
-      for (final topic in topics) 'topic': topic
+    final uri = Uri.parse(hub).replace(queryParameters: <String, List<String>>{
+      'topic': [for (final topic in topics) topic]
     });
 
     if (topics.isEmpty || !uri.isAbsolute) {
