@@ -1,37 +1,23 @@
-## [1.0.0]
-* Add auto retry feature
-* Use http package
-* Remove Dio dependencies
-* Allow multiple topics subscriptions
-* No more publish action
-* Mercure expose a stream
+# CHANGELOG 
 
-## [1.0.0-beta]
-* Update to null safety
+## v1.0.0
+> 28-09-2021
 
-## [0.0.6]
+* 👌 fix:  Authorization header
+* 📖 docs:  Update README.md
+* 📖 docs:  Update CHANGELOG.md
+* 📦 build:  use http package
+* 📦 build:  null safety
+* 📦 build:  remove meta
+* 📦 build:  null safety
 
-* Refactor request and Transformer
-* Make subcribe asynchronous
+## v0.0.7.beta
+> 09-03-2021
 
-## [0.0.5]
+* 📦 build:  remove meta
 
-* Update regex pattern
+## v0.07
+> 09-03-2021
 
-## [0.0.4]
+* 📦 build:  null safety
 
-* Fix errors handling
-* Improve documentation/example
-
-## [0.0.3]
-
-* Fix meta version compatibilitie with flutter-test
-* Cancel request
-
-## [0.0.2]
-
-* Add example
-
-## [0.0.1]
-
-* Initial version
