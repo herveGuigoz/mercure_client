@@ -1,8 +1,14 @@
 # CHANGELOG 
 
+## v1.0.1
+> 23-10-2021
+
+* 👌 fix:  topics query parameters
+
 ## v1.0.0
 > 28-09-2021
 
+* ✨ feat:  realese 1.0.0-beta
 * 👌 fix:  Authorization header
 * 📖 docs:  Update README.md
 * 📖 docs:  Update CHANGELOG.md
