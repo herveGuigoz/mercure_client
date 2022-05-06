@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
-
 import 'mercure_error.dart';
 
 /// {@template mercure_client.MercureEvent}
@@ -53,13 +51,13 @@ class MercureEvent {
     retry = _retry;
   }
 
-  /// Creates MercureEvent from web MessageEvent object.
-  MercureEvent.createFromMessageEvent(MessageEvent event) {
-    id = '';
-    data = event.data as String;
-    type = event.type;
-    retry = 0;
-  }
+  /// Creates MercureEvent from individual parts.
+  MercureEvent.createFromParts({
+    required this.id,
+    required this.data,
+    required this.type,
+    required this.retry,
+  });
 
   /// The SSE's id property
   late final String id;

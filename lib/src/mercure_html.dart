@@ -31,7 +31,9 @@ class Mercure extends RetryStream<MercureEvent> {
   String? lastEventId;
 
   @override
-  Stream<MercureEvent> _subscribe() async* {
+  Stream<MercureEvent> _subscribe() {
+    final sc = StreamController<MercureEvent>();
+
     final topicsPart =
         topics.map((e) => 'topic=${Uri.encodeComponent(e)}').join('&');
 
@@ -39,13 +41,18 @@ class Mercure extends RetryStream<MercureEvent> {
 
     final es = EventSource(fullUrl);
 
-    yield* es.onMessage.transform(_streamTransformer());
-  }
-
-  StreamTransformer<MessageEvent, MercureEvent> _streamTransformer() {
-    return StreamTransformer.fromHandlers(handleData: (data, sink) {
-      sink.add(MercureEvent.createFromMessageEvent(data));
+    es.onMessage.listen((event) {
+      final mercureEvent = MercureEvent.createFromParts(
+          id: '', data: event.data as String, type: event.type, retry: 0);
+      sc.add(mercureEvent);
     });
+
+    es.onError.listen((event) {
+      sc.addError(event);
+      sc.close();
+    });
+
+    return sc.stream;
   }
 }
 
