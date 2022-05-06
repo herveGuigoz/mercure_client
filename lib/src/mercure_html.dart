@@ -30,6 +30,12 @@ class Mercure extends RetryStream<MercureEvent> {
   /// at the time of the generation of this resource.
   String? lastEventId;
 
+  /// Used to cancel subscription on message events
+  StreamSubscription<MessageEvent>? msgSubscription;
+
+  /// Used to cancel subscription on error events
+  StreamSubscription<Event>? errSubscription;
+
   @override
   Stream<MercureEvent> _subscribe() {
     final sc = StreamController<MercureEvent>();
@@ -41,20 +47,24 @@ class Mercure extends RetryStream<MercureEvent> {
 
     final es = EventSource(fullUrl);
 
-    es.onMessage.listen((event) {
+    msgSubscription = es.onMessage.listen((event) {
       final mercureEvent = MercureEvent.createFromParts(
           id: '', data: event.data as String, type: event.type, retry: 0);
       sc.add(mercureEvent);
     }, cancelOnError: true);
 
-    es.onError.listen((event) {
+    errSubscription = es.onError.listen((event) {
       sc.addError(event);
 
       // is EventSource is closed, dispose everything
       if (es.readyState == 2) {
+        msgSubscription?.cancel();
+        errSubscription?.cancel();
+        msgSubscription = null;
+        errSubscription = null;
+
         // close stream
         sc.close();
-        es.close();
       }
     }, cancelOnError: true);
 
