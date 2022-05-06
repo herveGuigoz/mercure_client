@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'mercure_error.dart';
 
@@ -50,6 +51,14 @@ class MercureEvent {
     data = _data;
     type = _type;
     retry = _retry;
+  }
+
+  /// Creates MercureEvent from web MessageEvent object.
+  MercureEvent.createFromMessageEvent(MessageEvent event) {
+    id = '';
+    data = event.data as String;
+    type = event.type;
+    retry = 0;
   }
 
   /// The SSE's id property
