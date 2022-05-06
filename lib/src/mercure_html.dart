@@ -31,10 +31,10 @@ class Mercure extends RetryStream<MercureEvent> {
   String? lastEventId;
 
   /// Used to cancel subscription on message events
-  StreamSubscription<MessageEvent>? msgSubscription;
+  StreamSubscription<MessageEvent>? _msgSubscription;
 
   /// Used to cancel subscription on error events
-  StreamSubscription<Event>? errSubscription;
+  StreamSubscription<Event>? _errSubscription;
 
   @override
   Stream<MercureEvent> _subscribe() {
@@ -47,21 +47,21 @@ class Mercure extends RetryStream<MercureEvent> {
 
     final es = EventSource(fullUrl);
 
-    msgSubscription = es.onMessage.listen((event) {
+    _msgSubscription = es.onMessage.listen((event) {
       final mercureEvent = MercureEvent.createFromParts(
           id: '', data: event.data as String, type: event.type, retry: 0);
       sc.add(mercureEvent);
     }, cancelOnError: true);
 
-    errSubscription = es.onError.listen((event) {
+    _errSubscription = es.onError.listen((event) {
       sc.addError(event);
 
       // is EventSource is closed, dispose everything
       if (es.readyState == 2) {
-        msgSubscription?.cancel();
-        errSubscription?.cancel();
-        msgSubscription = null;
-        errSubscription = null;
+        _msgSubscription?.cancel();
+        _errSubscription?.cancel();
+        _msgSubscription = null;
+        _errSubscription = null;
 
         // close stream
         sc.close();
