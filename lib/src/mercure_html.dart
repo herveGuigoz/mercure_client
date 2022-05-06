@@ -45,12 +45,18 @@ class Mercure extends RetryStream<MercureEvent> {
       final mercureEvent = MercureEvent.createFromParts(
           id: '', data: event.data as String, type: event.type, retry: 0);
       sc.add(mercureEvent);
-    });
+    }, cancelOnError: true);
 
     es.onError.listen((event) {
       sc.addError(event);
-      sc.close();
-    });
+
+      // is EventSource is closed, dispose everything
+      if (es.readyState == 2) {
+        // close stream
+        sc.close();
+        es.close();
+      }
+    }, cancelOnError: true);
 
     return sc.stream;
   }
