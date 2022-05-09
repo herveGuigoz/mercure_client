@@ -1,4 +1,11 @@
-# CHANGELOG 
+# CHANGELOG
+
+## v1.1.0
+>10-05-2022
+
+* 👌 fix: web support using EventSource
+* 📖 docs: example app
+* 📖 docs: CHANGELOG
 
 ## v1.0.1
 > 23-10-2021
