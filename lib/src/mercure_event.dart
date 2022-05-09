@@ -7,7 +7,15 @@ import 'mercure_error.dart';
 /// {@endtemplate}
 class MercureEvent {
   /// {@macro mercure_client.MercureEvent}
-  MercureEvent(String raw) {
+  MercureEvent({
+    required this.id,
+    required this.data,
+    required this.type,
+    required this.retry,
+  });
+
+  /// {@macro mercure_client.MercureEvent}
+  MercureEvent.raw(String raw) {
     var _id = '', _data = '', _type = 'message', _retry = 0;
 
     final _pattern = RegExp(r'^(?<name>[^:]*)(?::)?(?: )?(?<value>.*)?$');
