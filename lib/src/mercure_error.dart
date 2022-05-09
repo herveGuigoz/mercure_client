@@ -9,7 +9,7 @@ abstract class MercureException implements Exception {
 
   /// Exception when request contains empty topics list or malformed url.
   factory MercureException.request(
-    Uri uri,
+    String hub,
     List<String> topics,
   ) = MercureRequestException;
 
@@ -22,6 +22,11 @@ abstract class MercureException implements Exception {
   factory MercureException.contentType(
     StreamedResponse response,
   ) = MercureContentTypeException;
+
+  /// Exception when connection with event source failed.
+  factory MercureException.eventSource(
+    String hubUrl,
+  ) = MercureEventSourceException;
 }
 
 /// {@template mercure_client.mercure_request_exception}
@@ -29,10 +34,10 @@ abstract class MercureException implements Exception {
 /// {@endtemplate}
 class MercureRequestException extends MercureException {
   /// {@macro mercure_client.mercure_request_exception}
-  MercureRequestException(this.uri, this.topics);
+  MercureRequestException(this.hub, this.topics);
 
   /// Parsed uniform resource identifier
-  final Uri uri;
+  final String hub;
 
   /// Expressions matching one or several topics
   final List<String> topics;
@@ -42,7 +47,7 @@ class MercureRequestException extends MercureException {
     if (topics.isEmpty) {
       return 'Missing one or many expression matching one or several topics';
     }
-    return 'Mercure: Malformed Uniform Resource Identifier (URI): $uri';
+    return 'Mercure: Malformed Uniform Resource Identifier (URI): $hub';
   }
 }
 
@@ -93,7 +98,7 @@ class MercureContentTypeException extends MercureException {
 /// {@template mercure_client.mercure_event_excepion}
 /// Exception when server returned malformed event.
 /// {@endtemplate}
-class MercureEventException implements Exception {
+class MercureEventException extends MercureException {
   /// {@macro mercure_client.mercure_event_excepion}
   MercureEventException(this.event);
 
@@ -103,5 +108,21 @@ class MercureEventException implements Exception {
   @override
   String toString() {
     return 'Mercure: Invalid event $event';
+  }
+}
+
+/// {@template mercure_client.mercure_event_source_excepion}
+/// Exception when connection with event source failed.
+/// {@endtemplate}
+class MercureEventSourceException extends MercureException {
+  /// {@macro mercure_client.mercure_event_source_excepion}
+  MercureEventSourceException(this.hubUrl);
+
+  /// Mercure hub URL.
+  final String hubUrl;
+
+  @override
+  String toString() {
+    return 'Connection to the hub $hubUrl failed';
   }
 }

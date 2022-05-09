@@ -1,4 +1,4 @@
-import 'package:mercure_client/src/mercure.dart';
+import 'package:mercure_client/src/mercure_io.dart';
 import 'package:test/test.dart';
 
 void main() {
