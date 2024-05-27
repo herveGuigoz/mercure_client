@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.1.1
+>28-05-2024
+
+* 📦 build: upgrade dependencies 
+
 ## v1.1.0
 >10-05-2022
 
