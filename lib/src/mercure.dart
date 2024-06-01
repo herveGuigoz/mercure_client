@@ -1,4 +1,5 @@
-import 'mercure_event.dart';
+import 'package:mercure_client/src/mercure_event.dart';
+// ignore: always_use_package_imports
 import 'mercure_io.dart' if (dart.library.html) 'mercure_html.dart';
 
 /// {@template mercure_client.mercure}
