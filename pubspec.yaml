@@ -1,6 +1,6 @@
 name: mercure_client
 description: Provide a quick way to publish and consume messages on Mercure
-version: 1.1.1
+version: 1.2.0
 homepage: https://github.com/herveGuigoz/mercure_client
 
 environment:

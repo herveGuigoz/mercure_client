@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.2.0
+>01-06-2024
+
+* 👌 fix: handle socket exceptions
+* 📖 docs: update example app
+
 ## v1.1.1
 >28-05-2024
 
