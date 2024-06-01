@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'mercure.dart';
-import 'mercure_error.dart';
-import 'mercure_event.dart';
+import 'package:mercure_client/src/mercure.dart';
+import 'package:mercure_client/src/mercure_error.dart';
+import 'package:mercure_client/src/mercure_event.dart';
 
 /// {@template mercure_client.mercure_client}
 /// A class that allows subscibe and publish to Mercure hub.
@@ -32,23 +33,19 @@ class MercureClient extends RetryStream<MercureEvent> implements Mercure {
   /// at the time of the generation of this resource.
   String? lastEventId;
 
-  /// Util to parse Unit8List to MercureEvent
-  final _buffer = StringBuffer();
-
-  /// Regex to find end of MercureEvent
-  static const String _kEndOfMessage = '\r\n\r\n|\n\n|\r\r';
-
   @override
   Stream<MercureEvent> subscribe() async* {
-    final _client = http.Client();
+    final client = http.Client();
 
     try {
-      final response = await _client.send(MercureRequest(
-        url,
-        topics,
-        authorization: token,
-        lastEventId: lastEventId,
-      ));
+      final response = await client.send(
+        MercureRequest(
+          url,
+          topics,
+          authorization: token,
+          lastEventId: lastEventId,
+        ),
+      );
 
       if (response.statusCode != 200) {
         throw MercureException.statusCode(response);
@@ -61,29 +58,39 @@ class MercureClient extends RetryStream<MercureEvent> implements Mercure {
       }
 
       yield* response.stream.transform<MercureEvent>(_streamTransformer());
+    } on HandshakeException catch (_) {
+      log('Mercure: Handshake failed at ${DateTime.now()}');
+      throw MercureException.eventSource(url);
+    } on SocketException catch (_) {
+      log('Mercure: Connection failed at ${DateTime.now()}');
+      throw MercureException.eventSource(url);
+    } on TimeoutException catch (_) {
+      log('Mercure: Connection timeout at ${DateTime.now()}');
+      throw MercureException.eventSource(url);
     } finally {
       log('Mercure: Subscription closed at ${DateTime.now()}');
-      _client.close();
+      client.close();
     }
   }
 
   StreamTransformer<List<int>, MercureEvent> _streamTransformer() {
-    return StreamTransformer.fromHandlers(handleData: (data, sink) {
-      final raw = utf8.decode(data, allowMalformed: true);
+    return StreamTransformer.fromHandlers(
+      handleData: (data, sink) {
+        final raw = utf8.decode(data, allowMalformed: true).trim();
 
-      if (raw.isEmpty) {
-        return;
-      }
+        if (raw.isEmpty || raw.startsWith(':')) {
+          return;
+        }
 
-      _buffer.write(raw);
-
-      if (RegExp(_kEndOfMessage).hasMatch(raw)) {
-        final event = MercureEvent.raw(_buffer.toString());
-        lastEventId = event.id;
-        _buffer.clear();
-        sink.add(event);
-      }
-    });
+        try {
+          final event = MercureEvent.raw(raw);
+          lastEventId = event.id;
+          sink.add(event);
+        } catch (error) {
+          sink.addError(error);
+        }
+      },
+    );
   }
 }
 
@@ -104,7 +111,7 @@ class MercureRequest extends http.Request {
     final queryParameters = <String>[
       for (final topic in topics) 'topic=${Uri.encodeComponent(topic)}',
     ].join('&');
-    
+
     final uri = Uri.tryParse('$hub?$queryParameters');
 
     if (uri == null || !uri.hasAbsolutePath || topics.isEmpty) {
@@ -173,8 +180,9 @@ abstract class RetryStream<T> extends Stream<T> {
       _subscription!.cancel();
       _subscription = null;
       if (error is MercureException) {
-        _controller.addError(error);
-        _controller.close();
+        _controller
+          ..addError(error)
+          ..close();
       } else {
         log('Mercure: $error');
         _retry();

@@ -1,3 +1,4 @@
+/// Provide a quick way to publish and consume messages on Mercure
 library mercure_client;
 
 export 'src/mercure.dart' show Mercure;

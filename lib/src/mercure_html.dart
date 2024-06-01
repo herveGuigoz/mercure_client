@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:html';
 
-import 'mercure.dart';
-import 'mercure_error.dart';
-import 'mercure_event.dart';
+import 'package:mercure_client/src/mercure.dart';
+import 'package:mercure_client/src/mercure_error.dart';
+import 'package:mercure_client/src/mercure_event.dart';
 
 /// {@template mercure_client.mercure_client}
 /// A class that allows subscibe and publish to Mercure hub using [EventSource]
@@ -98,7 +98,7 @@ class EventSourceController {
   /// Stream of [MercureEvent] from [EventSource].
   Stream<MercureEvent> get stream => _controller.stream;
 
-  late final List<StreamSubscription> _subscriptions;
+  late final List<StreamSubscription<Event>> _subscriptions;
 
   void _onOpen(Event event) {
     log('Subscription opened at ${DateTime.now()}', name: 'Mercure');
@@ -117,12 +117,14 @@ class EventSourceController {
 
   void _onMessage(MessageEvent event) {
     try {
-      _controller.add(MercureEvent(
-        id: event.lastEventId,
-        data: event.data as String,
-        type: event.type,
-        retry: 0,
-      ));
+      _controller.add(
+        MercureEvent(
+          id: event.lastEventId,
+          data: event.data as String,
+          type: event.type,
+          retry: 0,
+        ),
+      );
     } catch (error) {
       _controller.addError(MercureEventException(event.type));
     }
